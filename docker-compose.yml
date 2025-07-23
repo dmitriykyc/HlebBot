@@ -1,0 +1,40 @@
+version: "3.1"
+
+services:
+
+  hleb_bot:
+    container_name: HlebBot
+    build:
+      context: .
+    command: python bot.py
+    restart: always
+    networks:
+      - botnet
+    volumes:
+      - .:/HlebBot
+    depends_on:
+      - db_hleb_bot
+    environment:
+      - TZ=Europe/Moscow
+    env_file:
+      - ".env"
+
+  db_hleb_bot:
+    container_name: db_hleb_bot
+    image: postgres:14.1-alpine
+    environment:
+      POSTGRES_DB: $DB_NAME
+      POSTGRES_USER: $DB_USER
+      POSTGRES_PASSWORD: $DB_PASSWORD
+    restart: always
+    ports:
+      - '5586:5586'
+    networks:
+      - botnet
+    volumes:
+      - ./postgres:/var/lib/postgresql
+    command: -p 5586
+
+networks:
+  botnet:
+    driver: bridge
